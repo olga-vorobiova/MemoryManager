@@ -10,7 +10,7 @@ Memory manager for blocks of fixed size.
 ### Build and run 
 ```
 git clone https://github.com/olga-vorobiova/MemoryManager.git
-cd memoryManager
+cd MemoryManager
 cmake .
 make
 ./testMemoryManager
