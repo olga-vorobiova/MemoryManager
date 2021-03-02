@@ -3,7 +3,7 @@
 ### Description
 Memory manager for blocks of fixed size.
 
-###Prerequisites
+### Prerequisites
 - `cmake` (minimum version 3.1) 
 - `C++14 compiler` 
 
