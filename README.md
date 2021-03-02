@@ -4,7 +4,7 @@
 Memory manager for blocks of fixed size.
 
 ### Prerequisites
-- `cmake` (minimum version 3.1) 
+- `CMake` (minimum version 3.1) 
 - `C++14 compiler` 
 
 ### Build and run 
