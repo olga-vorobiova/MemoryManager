@@ -15,11 +15,7 @@ MemoryManager::MemoryManager(void* ptr, size_t memorySize, size_t blockSize) :
 m_blockSize(blockSize)
 {
     if((m_blockSize > memorySize) || (blockSize == 0))
-    {
-        std::string errorMessage = "MemoryManager: invalid block size";
-        MemoryManagerException exception(errorMessage);
-        throw exception;        
-    }
+        throw MemoryManagerException("MemoryManager: invalid block size");
     
     m_memoryPtr = static_cast<byte*>(ptr);
     m_infoSize = 0;
@@ -69,34 +65,40 @@ void MemoryManager::free(void* p)
     byte* ptr = static_cast<byte*>(p);
     if ((m_memoryPtr > ptr) ||
         ((m_memoryPtr + m_infoSize + m_blocksCount * m_blockSize) <= ptr))
-    {
-        std::string errorMessage = "MemoryManager::free: invalid pointer";
-        MemoryManagerException exception(errorMessage);
-        throw exception;
-    }
+        throw MemoryManagerException("MemoryManager::free: invalid pointer");
         
     size_t blockIndex = static_cast<byte*>(p) - m_memoryPtr;
     blockIndex = (blockIndex - m_infoSize) / m_blockSize;
-    ++m_freeBlocksCount;
+    static const std::string multipleFreeExceptionMessage = "MemoryManager::free: call free multiple times for the same pointer";
     
-    if(m_infoSize > 0)
+    if(m_infoSize == 0)
+    {
+        if(m_freeBlocksCount == 0)
+            ++m_freeBlocksCount;
+        else
+            throw MemoryManagerException(multipleFreeExceptionMessage);
+    }
+    else
     {
         size_t byteIndex = blockIndex / 8;
         size_t bitIndex = blockIndex % 8;
         byte& infoByte = m_memoryPtr[byteIndex];
         byte mask = byteMask[bitIndex];
-        infoByte ^= mask;
+
+        if(infoByte & mask)
+        {
+            infoByte ^= mask;
+            ++m_freeBlocksCount;
+        }
+        else
+            throw MemoryManagerException(multipleFreeExceptionMessage);
     }
 }
 
 size_t MemoryManager::findFreeBlock()
 {
     if(!m_freeBlocksCount)
-    {
-        std::string errorMessage = "MemoryManager::allocate: no free memory";
-        MemoryManagerException exception(errorMessage);
-        throw exception;
-    }
+        throw MemoryManagerException("MemoryManager::allocate: no free memory");
     
     for(size_t byteIndex = 0; byteIndex < m_infoSize; ++byteIndex)
     {

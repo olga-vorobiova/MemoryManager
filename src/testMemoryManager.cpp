@@ -157,6 +157,40 @@ bool testAllocateAndFree()
     return testResult;
 }
 
+bool testMultipleFreeForSamePointer(size_t memorySize, size_t blockSize)
+{
+    bool testResult = false;
+    try
+    {
+        auto ptr = std::make_unique<byte[]>(memorySize);
+        MemoryManager memoryManager(ptr.get(), sizeof(byte) * memorySize, blockSize);
+        void* blockPtr = nullptr;
+        
+        for(size_t index = 0; index < memoryManager.getMaxBlocks(); ++index)
+        {
+            blockPtr = static_cast<short*>(memoryManager.allocate());
+        }
+        
+        memoryManager.free(blockPtr);
+        memoryManager.free(blockPtr);
+    }
+    catch (const std::exception& exception)
+    {
+        testResult = true;
+    }
+    return testResult;
+}
+
+bool testMultipleFreeForSamePointer()
+{
+    bool testResult = true;
+    
+    testResult = testMultipleFreeForSamePointer(10, 10);
+    testResult &= testMultipleFreeForSamePointer(20, 2);
+    
+    return testResult;
+}
+
 void printTestResult(bool testResult, std::string functionName)
 {
     if(testResult)
@@ -167,9 +201,10 @@ void printTestResult(bool testResult, std::string functionName)
 
 void testMemoryManager()
 {
-    printTestResult(testConstruction(), "Construction");
-    printTestResult(testBlockCount(), "Block count");
-    printTestResult(testAllocateException(), "Allocate exception");
-    printTestResult(testFreeException(), "Free exception");
-    printTestResult(testAllocateAndFree(), "Allocate and free");
+    printTestResult(testConstruction(), "construction");
+    printTestResult(testBlockCount(), "block count");
+    printTestResult(testAllocateException(), "allocate exception");
+    printTestResult(testFreeException(), "free exception");
+    printTestResult(testAllocateAndFree(), "allocate and free");
+    printTestResult(testMultipleFreeForSamePointer(), "call free multiple times for the same pointer");
 }

@@ -17,6 +17,8 @@ bool testBlockCount();
 bool testAllocateException();
 bool testFreeException();
 bool testAllocateAndFree();
+bool testMultipleFreeForSamePointer(size_t memorySize, size_t blockSize);
+bool testMultipleFreeForSamePointer();
 void testMemoryManager();
 
 #endif /* testMemoryManager_hpp */
